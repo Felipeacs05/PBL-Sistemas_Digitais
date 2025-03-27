@@ -1,9 +1,8 @@
 module MultiplicadorMatriz (
-    input signed [199:0] matriz_a, // Matriz 5x5 achatada (cada elemento com 8 bits)
-    input signed [199:0] matriz_b, // Matriz 5x5 achatada (cada elemento com 8 bits)
-    input [7:0] tamanho,
+    input signed [199:0] matriz_a,
+    input signed [199:0] matriz_b,
     input clock,
-    output reg signed [199:0] resultado // Matriz 5x5 achatada (cada elemento com 16 bits)
+    output reg signed [199:0] resultado
 );
 
     reg [7:0] linha;
