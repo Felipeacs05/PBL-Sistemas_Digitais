@@ -4,41 +4,47 @@ module main_multi (
 	input wire clk,
 	output reg [7:0] leds
 	);
-	
-	reg [2:0] size;
-	
+
 	reg [7:0] address = 0;
 	reg clk2;
 	reg clk3;
 	reg [7:0] i = 0;
-	reg [255:0] matriz_A;
-	reg [255:0] matriz_B;
-	wire [255:0] matriz_C;
+	
+	reg [199:0] matriz_A;
+	reg [199:0] matriz_B;
+	wire [199:0] matriz_C;
+	
 	reg read_finished = 0;
 	reg write_enable = 0;
+	
 	reg [24:0] counter = 0;
 	reg [24:0] counter2 = 0;
 	reg[7:0] count = 0;
+	
 	wire [255:0] data;
 
-	ram_1port_256bits (
+	RamGigante (
 	  address,
 	  clk,
 	  matriz_C,
 	  write_enable,
 	  data
 	);
+	
+	//
 
-   
-	matriz_multi (
+   debounce (
 	  rst,
 	  clk,
-	  size,
+	  rstdebounce
+	);
+	
+	matriz_multi (
 	  matriz_A,
 	  matriz_B,
+	  clk3,
 	  matriz_C
 	);
-
    
 	always @(posedge clk) begin
 	  if (counter == 25'd24_999_999) begin  
@@ -68,49 +74,34 @@ module main_multi (
 					 count <= count + 1;
 				end
 				1: begin
-					 read_finished = 0;
-					 write_enable = 0;
-				end
-				2: begin
-					 size <= data;
-					 count <= count + 1;
-				end
-				3: begin
-					 address <= 1;
-					 count <= count + 1;
-				end
-				4: begin
 					 matriz_A <= data;
 					 count <= count + 1;
 				end
-				5: begin
+				2: begin
 					 address <= 1;
 					 count <= count + 1;
 				end
-				6: begin
+				3: begin
 					 matriz_B <= data;
 					 count <= count + 1;
 				end
-				7: begin
+				4: begin
 					 address <= 2;
 					 count <= count + 1;
 				end
-				8: begin
+				5: begin
 					 write_enable <= 1;
 					 count <= count + 1;
 				end
-				9: begin
+				6: begin
 					 count <= count + 1;
 				end
-				10: begin
+				7: begin
+					count <= count + 1;
+				end
+				8: begin
 					 write_enable <= 0;
 					 read_finished <= 1;
-					 count <= count + 1;
-				end
-				11: begin
-					if(rst)begin
-						count <= 0;
-					end
 				end
 				endcase
 		  end
