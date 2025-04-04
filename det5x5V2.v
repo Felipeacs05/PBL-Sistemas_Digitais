@@ -13,6 +13,10 @@ module matriz_determ5x5 (
 	reg [31:0] tp [4:0];
 	reg [4:0] count = 0;
 	
+	reg t;
+	
+	and (teste, !t, done2);
+	
 	reg [199:0] bitouni [4:0];
 	
 	reg [199:0] sob;
@@ -38,8 +42,9 @@ module matriz_determ5x5 (
 	endgenerate
 	
 	always @(posedge clk) begin
+		t <= done2;
 		  if(start) begin
-			  if (!done2 & count < 5) begin
+			  if (!teste & count < 5) begin
 					start2 = 1;
 					bitouni[count] = {mat[4][(count+4)%5], mat[4][(count+3)%5], mat[4][(count+2)%5], mat[4][(count+1)%5],
 											8'b0, mat[3][(count+4)%5], mat[3][(count+3)%5], mat[3][(count+2)%5], mat[3][(count+1)%5],
@@ -47,7 +52,7 @@ module matriz_determ5x5 (
 											8'b0, mat[1][(count+4)%5], mat[1][(count+3)%5], mat[1][(count+2)%5], mat[1][(count+1)%5]};
 					sob = bitouni[count];
 					tp[count] = mat[0][count] * saidadet4x4;
-			  end else if(done2) begin
+			  end else if(teste) begin
 					start2 <= 0;
 			      count <= count + 1;
 			  end else begin
