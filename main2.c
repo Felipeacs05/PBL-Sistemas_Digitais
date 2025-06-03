@@ -87,139 +87,184 @@ static int comparar_imagens_diferenca(const char *imagem1_path, const char *imag
 }
 
 // Roberts 2x2
-int roberts(int m[2][5]){ // O parâmetro m aqui é [2][5] mas a máscara é [2][2]
+int roberts(int m[2][5]){
+
     int mask0[2][2] ={
         {1, 0},
         {0, -1} 
     };
+
     int mask1[2][2] ={
         {0, 1},
         {-1, 0} 
     };
+
     int sumX = 0, sumY = 0;
+
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
             sumX = sumX + mask0[i][j] * m[i][j];
             sumY = sumY + mask1[i][j] * m[i][j]; 
         }
     }
+
     int x = sqrt(sumX*sumX + sumY*sumY);
+    //printf("%f\n", x);
     return x;
 }
 
 // Sobel 3x3
-int sobel(int m[3][5]){ // O parâmetro m aqui é [3][5] mas a máscara é [3][3]
-    int mask0[3][3] = { // Corrigido para [3][3] para corresponder ao uso
+int sobel(int m[3][5]){
+
+
+    int mask0[3][5] = { // Na sua versão original, as máscaras eram [3][5]
         {-1, 0, 1},
         {-2, 0, 2},
         {-1, 0, 1}
     };
-    int mask1[3][3] = { // Corrigido para [3][3]
+    
+    int mask1[3][5] = { // Na sua versão original, as máscaras eram [3][5]
         {1, 2, 1},
         {0, 0, 0},
         {-1, -2, -1}
     };
+
     int sumX = 0, sumY = 0;
+
     for (int i = 0; i < 3; i++){
-        for (int j = 0; j < 3; j++){
+        for (int j = 0; j < 3; j++){ // Loops iteram 3x3
             sumX = sumX + mask0[i][j] * m[i][j];
             sumY = sumY + mask1[i][j] * m[i][j]; 
         }
     }
+
     int resultado = sqrt(sumX*sumX + sumY*sumY);
+
     return resultado;
 }
 
 // PreWitt 3x3 
-int preWitt(int m[3][5]){ // O parâmetro m aqui é [3][5] mas a máscara é [3][3]
-    int mask0[3][3] = { // Corrigido para [3][3]
+int preWitt(int m[3][5]){
+
+    int mask0[3][5] = { // Na sua versão original, as máscaras eram [3][5]
         {-1, 0, 1},
         {-1, 0, 1},
         {-1, 0, 1}
     };
-    int mask1[3][3] = { // Corrigido para [3][3]
+    
+    int mask1[3][5] = { // Na sua versão original, as máscaras eram [3][5]
         {-1,-1,-1},
         {0,0,0},
         {1,1,1}
     };
+
     int sumX = 0, sumY = 0;
+    
     for (int i = 0; i < 3; i++){
-        for (int j = 0; j < 3; j++){
+        for (int j = 0; j < 3; j++){ // Loops iteram 3x3
             sumX = sumX + mask0[i][j] * m[i][j];
             sumY = sumY + mask1[i][j] * m[i][j]; 
         }
     }
+
     int resultado = sqrt(sumX*sumX + sumY*sumY);
+
     return resultado;
 }
 
 // Sobel Expandido 5x5
 int sobel_expandido(int m[5][5]) {
+
     int sobel5x5_X[5][5] = {
-        { 2,  2,  4,  2,  2 },
-        { 1,  1,  2,  1,  1 },
-        { 0,  0,  0,  0,  0 },
+        { 2, 2, 4, 2, 2 },
+        { 1, 1, 2, 1, 1 },
+        { 0, 0, 0, 0, 0 },
         { -1, -1, -2, -1, -1 },
         { -2, -2, -4, -2, -2 }
     };
+
     int sobel5x5_Y[5][5] = {
-        {  2,  1,  0, -1, -2 },
-        {  2,  1,  0, -1, -2 },
-        {  4,  2,  0, -2, -4 },
-        {  2,  1,  0, -1, -2 },
-        {  2,  1,  0, -1, -2 }
+        { 2, 1, 0, -1, -2 },
+        { 2, 1, 0, -1, -2 },
+        { 4, 2, 0, -2, -4 },
+        { 2, 1, 0, -1, -2 },
+        { 2, 1, 0, -1, -2 }
     };
-    long long sumX_ll = 0, sumY_ll = 0; // Usar long long para somas intermediárias
+
+    int sumX = 0, sumY = 0;
+
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
-            sumX_ll += (long long)sobel5x5_X[i][j] * m[i][j];
-            sumY_ll += (long long)sobel5x5_Y[i][j] * m[i][j];
+            sumX += sobel5x5_X[i][j] * m[i][j];
+            sumY += sobel5x5_Y[i][j] * m[i][j];
         }
     }
-    // Converter de volta para int após a soma, se necessário, ou usar double para sqrt
-    int sumX = (int)sumX_ll;
-    int sumY = (int)sumY_ll;
-    int result = sqrt((double)sumX * sumX + (double)sumY * sumY);
+
+    int result = sqrt(sumX * sumX + sumY * sumY);
+
+    //printf("\n %d", result);
     return result;
 }
 
 // Laplaciano 5x5
 int laplaciano(int m[5][5]){
+    
     int mask0[5][5] = {
-        { 0,  0, -1,  0,  0 },
-        { 0, -1, -2, -1,  0 },
-        {-1, -2, 16, -2, -1 },
-        { 0, -1, -2, -1,  0 },
-        { 0,  0, -1,  0,  0 }
+    { 0,  0,  -1,  0,  0 },
+    { 0, -1,  -2, -1,  0 },
+    {-1, -2,  16, -2, -1 },
+    { 0, -1,  -2, -1,  0 },
+    { 0,  0,  -1,  0,  0 }
     };
-    long long sumG_ll = 0; // Usar long long para a soma
+
+    int sumG = 0;
+
     for (int i = 0; i < 5; i++){
         for (int j = 0; j < 5; j++){
-            sumG_ll = sumG_ll + (long long)mask0[i][j] * m[i][j];
+            sumG = sumG + mask0[i][j] * m[i][j];
         }
     }
-    return (int)sumG_ll; // O resultado do Laplaciano pode ser negativo
+
+    return sumG;
 }
 
-// Geração da matriz 5x5 com tratamento de bordas (espelhamento/replicação)
-// ATENÇÃO: A versão original desta função não tinha tratamento de bordas robusto.
-// A versão abaixo inclui o tratamento de bordas por replicação que estava comentado.
-int funcTeste5x5(unsigned char *dados, int current_y, int current_x, int largura, int altura, int operacao) {
-    int matriz_temp[5][5];
+// Geração da matriz 5x5 com tratamento de bordas (espelhamento)
+// Esta é a versão da funcTeste5x5 que você enviou, com a parte do tratamento de bordas comentada
+int funcTeste5x5(unsigned char *dados, int i, int j, int largura, int altura, int operacao) {
+    /* int matriz_temp[5][5];
 
-    for (int r_kernel = 0; r_kernel < 5; r_kernel++) { // Linha do kernel
-        for (int c_kernel = 0; c_kernel < 5; c_kernel++) { // Coluna do kernel
-            int y_img = current_y + r_kernel - 2; // Coordenada y na imagem (centro do kernel em current_y)
-            int x_img = current_x + c_kernel - 2; // Coordenada x na imagem
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int y = i + linha - 2;
+            int x = j + coluna - 2;
 
             // Tratamento de borda por replicação
-            if (y_img < 0) y_img = 0;
-            if (y_img >= altura) y_img = altura - 1;
-            if (x_img < 0) x_img = 0;
-            if (x_img >= largura) x_img = largura - 1;
+            if (y < 0) y = 0;
+            if (y >= altura) y = altura - 1;
+            if (x < 0) x = 0;
+            if (x >= largura) x = largura - 1;
 
-            matriz_temp[r_kernel][c_kernel] = dados[y_img * largura + x_img];
+            matriz_temp[linha][coluna] = dados[y * largura + x];
         }
+    }
+
+    return sobel_expandido(matriz_temp); // Esta linha estava dentro do comentário, pode precisar de ajuste
+    */
+
+    int matriz_temp[5][5];
+    int linha = 0;
+    int coluna = 0;  
+
+    // printf("\n %d %d", i, j);
+    for(int linhaTemp = i - 2; linhaTemp < (i + 3); linhaTemp++){
+        for(int colunaTemp = j - 2; colunaTemp < (j + 3); colunaTemp++){
+            // ATENÇÃO: esta linha pode causar acesso fora dos limites se i,j estiverem perto das bordas
+            // e o tratamento de bordas acima estiver comentado.
+            matriz_temp[linha][coluna] = dados[linhaTemp* largura + colunaTemp];
+            coluna++;
+        }
+        coluna = 0;
+        linha++;
     }
 
     if(operacao == 4){
@@ -227,32 +272,31 @@ int funcTeste5x5(unsigned char *dados, int current_y, int current_x, int largura
     } else if(operacao == 5){
         return laplaciano(matriz_temp);
     }
-    return 0; // Caso de operação não reconhecida para 5x5
+
+    return 0;
 }
 
-// Geração da matriz 3x3 com tratamento de bordas
-int funcTeste3x3(unsigned char *dados, int current_y, int current_x, int largura, int altura_img, int operacao){
-    int matriz_temp[3][5]; // Declarado como [3][5], mas usado como [3][3]
-    // O parâmetro 'tamanho' original foi substituído por 'altura_img' para clareza
-    // e o 'tamanho--' foi removido pois a lógica de borda foi ajustada.
-    
-    int linha_mat = 0;
-    for (int r_offset = -1; r_offset <= 1; r_offset++){ // Offset da linha do kernel: -1, 0, 1
-        int coluna_mat = 0;
-        for (int c_offset = -1; c_offset <= 1; c_offset++){ // Offset da coluna do kernel: -1, 0, 1
-            int y_img = current_y + r_offset;
-            int x_img = current_x + c_offset;
+int funcTeste3x3(unsigned char *dados, int i, int j, int larg_dados, int tamanho, int operacao){
 
-            // Tratamento de borda por replicação simples
-            if (y_img < 0) y_img = 0;
-            if (y_img >= altura_img) y_img = altura_img - 1;
-            if (x_img < 0) x_img = 0;
-            if (x_img >= largura) x_img = largura - 1;
-            
-            matriz_temp[linha_mat][coluna_mat] = dados[y_img * largura + x_img];
-            coluna_mat++;
+    int matriz_temp[3][5];
+    tamanho--; // Esta era a sua lógica original com 'tamanho'
+    
+    int linha = 0, coluna = 0;
+
+    // Montando 3x3 parcial
+    for (int w = i - 1; w < (i + 2); w++){
+        for (int z = j - 1; z < (j + 2); z++){
+            if ((w < 0 || w > tamanho) && (z < 0 || z > tamanho)) matriz_temp[linha][coluna] = dados[i*larg_dados + j];
+            else if (w < 0) matriz_temp[linha][coluna] = dados[(w+1)*larg_dados + z];
+            else if (w > tamanho) matriz_temp[linha][coluna] = dados[(w-1)*larg_dados + z];
+            else if (z < 0) matriz_temp[linha][coluna] = dados[w*larg_dados + z + 1];
+            else if (z > tamanho) matriz_temp[linha][coluna] = dados[w*larg_dados + z - 1];
+            else matriz_temp[linha][coluna] = dados[w*larg_dados + z];
+            coluna++;
+            //printf("%d/%d\n", w, z);
         }
-        linha_mat++;
+        coluna = 0;
+        linha++;
     }
 
     if(operacao == 2){
@@ -260,167 +304,122 @@ int funcTeste3x3(unsigned char *dados, int current_y, int current_x, int largura
     } else if(operacao == 3){
         return preWitt(matriz_temp);
     }
-    return 0; // Caso de operação não reconhecida para 3x3
+
+    return 0;
 }
 
-// Geração da matriz 2x2
-int funcTeste2x2(unsigned char *dados, int current_y, int current_x, int largura, int altura_img){
-    int matriz_temp[2][5]; // Declarado como [2][5], usado como [2][2]
-    
-    // Para Roberts 2x2, (current_y, current_x) é o canto superior esquerdo da janela 2x2.
-    // Precisa garantir que não saia dos limites para current_y+1 e current_x+1.
-    if (current_y + 1 >= altura_img || current_x + 1 >= largura) {
-        // Se estiver na borda onde uma janela 2x2 não pode ser formada completamente,
-        // retorna 0 (ou outro tratamento de borda, como replicação do último pixel válido).
-        // Isso pode criar uma borda preta na imagem de saída se o loop principal não for ajustado.
-        return 0; 
-    }
+int funcTeste2x2(unsigned char *dados, int i, int j, int larg_dados, int tamanho){
 
-    matriz_temp[0][0] = dados[current_y * largura + current_x];
-    matriz_temp[0][1] = dados[current_y * largura + (current_x + 1)];
-    matriz_temp[1][0] = dados[(current_y + 1) * largura + current_x];
-    matriz_temp[1][1] = dados[(current_y + 1) * largura + (current_x + 1)];
+    int matriz_temp[2][5];    
+    
+    int linha = 0, coluna = 0;
+
+    for (int w = i; w < (i + 2); w++){
+        for (int z = j; z < (j + 2); z++){
+            // ATENÇÃO: esta linha pode causar acesso fora dos limites se i,j estiverem perto das bordas
+            matriz_temp[linha][coluna] = dados[w*larg_dados + z];
+            coluna++;
+            //printf("%d/%d\n", w, z);
+        }
+        coluna = 0;
+        linha++;
+    }
 
     return roberts(matriz_temp);
 }
 
-
-// =======================================================================================
-// ATENÇÃO: Corrigido para incluir os 'return' statements que estavam faltando.
-// O parâmetro 'tamanho' foi renomeado para 'altura_dados' para maior clareza.
-// =======================================================================================
-int calcularGeratriz(unsigned char *dados, int i, int j, int larg_dados, int altura_dados, int operacao){
-    if(operacao == 1){ // Roberts
-        return funcTeste2x2(dados, i, j, larg_dados, altura_dados);
-    } else if(operacao == 2 || operacao == 3){ // Sobel 3x3, Prewitt 3x3
-        return funcTeste3x3(dados, i, j, larg_dados, altura_dados, operacao);
-    } else if(operacao == 4 || operacao == 5){ // Sobel 5x5, Laplaciano 5x5
-        return funcTeste5x5(dados, i, j, larg_dados, altura_dados, operacao);
+// Esta é a sua versão original de calcularGeratriz, com os 'return' faltando
+int calcularGeratriz(unsigned char *dados, int i, int j, int larg_dados, int tamanho, int operacao){
+    if(operacao == 2 || operacao == 3){
+        funcTeste3x3(dados, i, j, larg_dados, tamanho, operacao); // FALTA RETURN
+    }else if(operacao == 4 || operacao == 5){
+        funcTeste5x5(dados, i, j, larg_dados, tamanho, operacao); // FALTA RETURN
+    }else{
+        funcTeste2x2(dados, i, j, larg_dados, tamanho); // FALTA RETURN
     }
-    // Caso padrão se 'operacao' não for um valor esperado (embora o menu deva prevenir isso)
-    fprintf(stderr, "Aviso: Operacao desconhecida em calcularGeratriz: %d\n", operacao);
-    return 0; // Retorno padrão para valor de operação não tratado
+    // Um valor deveria ser retornado aqui também, ou a função deveria ser void se nada é retornado.
+    // O compilador provavelmente dará um aviso sobre "control reaches end of non-void function".
 }
+
 
 int main() {
     const char *input_filename = "lenna.jpeg";
-    char *output_filename_ptr = "foto.png"; // Renomeado para evitar conflito com nome de buffer
+    char *output_filename = "foto.png"; // Sua variável original
 
     int width, height, channels;
-    unsigned char *data = stbi_load(input_filename, &width, &height, &channels, 1); // Carrega como grayscale
+    unsigned char *data = stbi_load(input_filename, &width, &height, &channels, 1);
     if (!data) {
         printf("Erro ao carregar imagem '%s'\n", input_filename);
         return 1;
     }
 
-    // temp_data não estava sendo usado no pipeline de filtro que você mostrou.
-    // Se você não o usa, pode remover a alocação e liberação.
-    // double *temp_data = malloc(width * height * sizeof(double)); 
-    unsigned char *output_data = (unsigned char *)malloc(width * height * sizeof(unsigned char));
+    double *temp_data = malloc(width * height * sizeof(double)); // Sua alocação original
+    unsigned char *output_data = malloc(width * height * sizeof(unsigned char));
 
-    if (/*!temp_data ||*/ !output_data) { // Removido temp_data da checagem se não for usado
+    if (!temp_data || !output_data) { // Sua checagem original
         printf("Erro ao alocar memória.\n");
         stbi_image_free(data);
-        // free(temp_data); // Liberar se for alocado
-        free(output_data); // Liberar output_data se a alocação dele falhou (improvável aqui, mas boa prática)
+        free(temp_data);
+        free(output_data);
         return 1;
     }
 
-    printf("\nImagem carregada: %dx%d\n", width, height);
-    
+    printf("\n%d %d", width, height);
+    // Aplicar Sobel 5x5 (armazenando valores temporários) // Comentário original
+    double max_value = 0.0; // Sua variável original
     int operacao = 0;
-    // 'comp' não estava sendo usado no escopo mais amplo da main, é local para o case 6.
-    // double max_value = 0.0; // Não estava sendo usado.
+    int comp = 0; // Sua variável original, usada localmente no case 6 depois
+    printf("\nDIGITE O FILTRO DESEJADO: ");
+    printf("\nFILTROS:\n[1] Roberts(2x2) \n[2] Sobel(3x3) \n[3] Prewitt(3x3) \n[4] Sobel Expandido(5x5) \n[5] Laplaciano(5x5): \n[6] CompararC-FPGA: \n[7] Sair: ");
+    scanf("%d", &operacao);
 
-    // Loop principal do menu
-    do {
-        printf("\n--------------------------------MENU--------------------------------\n");
-        printf("Escolha uma operacao:\n");
-        printf("[1] Aplicar filtro Roberts (2x2)\n");
-        printf("[2] Aplicar filtro Sobel (3x3)\n");
-        printf("[3] Aplicar filtro Prewitt (3x3)\n");
-        printf("[4] Aplicar filtro Sobel Expandido (5x5)\n");
-        printf("[5] Aplicar filtro Laplaciano (5x5)\n");
-        printf("[6] Comparar Imagens C vs FPGA (usando a funcao de compararFPGA_C.h)\n");
-        printf("[7] Sair\n");
-        printf("Opcao: ");
+    switch(operacao){
+            case 1:
+                output_filename = "outputC/roberts.png";
+                break;
+            case 2:
+                output_filename = "outputC/sobel.png";
+                break;
+            case 3:
+                output_filename = "outputC/prewitt.png";
+                break;
+            case 4:
+                output_filename = "outputC/sobel_expandido.png";
+                break;
+            case 5:
+                output_filename = "outputC/laplaciano.png";
+                break;
+            case 6: { // Este bloco case 6 é a versão que ajustamos juntos e estava no seu último envio completo
+                int filter_choice_for_comparison; 
+                
+                printf("\n--- Comparação de Imagens C vs FPGA ---\n");
+                printf("Qual conjunto de resultados de filtro deseja comparar?\n");
+                printf("As imagens devem estar em 'outputC/' e 'outputDafema/' respectivamente.\n");
+                printf("A diferença será salva em 'outputDifC_FPGA/'.\n\n");
+                printf("[1] Roberts\n");
+                printf("[2] Sobel\n");
+                printf("[3] Prewitt\n");
+                printf("[4] Sobel Expandido\n");
+                printf("[5] Laplaciano\n");
+                printf("Digite o número do filtro para comparar: ");
 
-        if (scanf("%d", &operacao) != 1) {
-            printf("Entrada invalida. Por favor, digite um numero.\n");
-            while (getchar() != '\n'); // Limpar buffer de entrada
-            operacao = 0; // Forçar repetição do menu
-            continue;
-        }
-        
-        char current_output_filename_buffer[128]; // Buffer para nomes de arquivo de saída
-
-        if (operacao >= 1 && operacao <= 5) { // Aplicar filtro
-            const char *filter_name_str = "";
-            switch(operacao){
-                case 1: filter_name_str = "roberts"; break;
-                case 2: filter_name_str = "sobel"; break;
-                case 3: filter_name_str = "prewitt"; break;
-                case 4: filter_name_str = "sobel_expandido"; break;
-                case 5: filter_name_str = "laplaciano"; break;
-            }
-            sprintf(current_output_filename_buffer, "outputC/%s.png", filter_name_str);
-            output_filename_ptr = current_output_filename_buffer; // Atualiza o ponteiro
-
-            printf("\nAplicando filtro '%s' e salvando em '%s'...\n", filter_name_str, output_filename_ptr);
-
-            // ATENÇÃO aos limites do loop e ao tratamento de bordas nas funcTeste*
-            // Se funcTeste* lidam com todas as bordas para i,j de 0 a height-1/width-1,
-            // então o loop pode ir até height e width.
-            // Se, por exemplo, Roberts produz uma imagem (W-1)x(H-1), o loop e o stbi_write_png precisam ser ajustados.
-            // Assumindo por agora que output_data é preenchido completamente.
-            for (int y = 0; y < height; y++) { // Loop até height (ajuste se necessário)
-                for (int x = 0; x < width; x++) { // Loop até width (ajuste se necessário)
-                    int temporario = calcularGeratriz(data, y, x, width, height, operacao);
-                    
-                    // Clamping do resultado do filtro para o range 0-255
-                    if (temporario > 255) temporario = 255;
-                    else if (temporario < 0) temporario = 0; // Importante para Laplaciano
-                    
-                    output_data[y * width + x] = (unsigned char)temporario;
+                if (scanf("%d", &filter_choice_for_comparison) != 1) {
+                    printf("Entrada inválida. Por favor, digite um número.\n");
+                    while (getchar() != '\n'); 
+                    break; 
                 }
-            }
-            
-            if (stbi_write_png(output_filename_ptr, width, height, 1, output_data, width)) {
-                 printf("Imagem salva como '%s'\n", output_filename_ptr);
-            } else {
-                 printf("Erro ao salvar imagem '%s'\n", output_filename_ptr);
-            }
 
-        } else if (operacao == 6) { // Comparar Imagens C vs FPGA
-            int filter_choice_for_comparison;
-            
-            printf("\n--- Comparacao de Imagens C vs FPGA ---\n");
-            printf("Qual conjunto de resultados de filtro deseja comparar?\n");
-            printf("As imagens devem estar em 'outputC/' e 'outputDafema/' respectivamente.\n");
-            printf("A diferenca sera salva em 'outputDifC_FPGA/'.\n\n");
-            printf("[1] Roberts\n");
-            printf("[2] Sobel\n");
-            printf("[3] Prewitt\n");
-            printf("[4] Sobel Expandido\n");
-            printf("[5] Laplaciano\n");
-            printf("Digite o numero do filtro para comparar: ");
-
-            if (scanf("%d", &filter_choice_for_comparison) != 1) {
-                printf("Entrada invalida. Por favor, digite um numero.\n");
-                while (getchar() != '\n'); 
-                // Não faz nada, volta ao menu principal
-            } else {
-                char base_filename_str[64];
+                char base_filename[64];
                 int valid_choice = 1;
 
                 switch (filter_choice_for_comparison) {
-                    case 1: strcpy(base_filename_str, "roberts"); break;
-                    case 2: strcpy(base_filename_str, "sobel"); break;
-                    case 3: strcpy(base_filename_str, "prewitt"); break;
-                    case 4: strcpy(base_filename_str, "sobel_expandido"); break;
-                    case 5: strcpy(base_filename_str, "laplaciano"); break;
+                    case 1: strcpy(base_filename, "roberts"); break;
+                    case 2: strcpy(base_filename, "sobel"); break;
+                    case 3: strcpy(base_filename, "prewitt"); break;
+                    case 4: strcpy(base_filename, "sobel_expandido"); break;
+                    case 5: strcpy(base_filename, "laplaciano"); break;
                     default:
-                        printf("Opcao de filtro invalida (%d).\n", filter_choice_for_comparison);
+                        printf("Opção de filtro inválida (%d).\n", filter_choice_for_comparison);
                         valid_choice = 0;
                         break;
                 }
@@ -430,36 +429,54 @@ int main() {
                     char path_image_fpga[128];
                     char path_image_difference[128];
 
-                    sprintf(path_image_c, "outputC/%s.png", base_filename_str);
-                    sprintf(path_image_fpga, "outputDafema/%s.png", base_filename_str);
-                    sprintf(path_image_difference, "outputDifC_FPGA/%s_diff.png", base_filename_str); 
+                    sprintf(path_image_c, "outputC/%s.png", base_filename);
+                    sprintf(path_image_fpga, "outputDafema/%s.png", base_filename);
+                    sprintf(path_image_difference, "outputDifC_FPGA/%s_diff.png", base_filename); 
 
                     printf("\nComparando:\n  Imagem C:     %s\n  Imagem FPGA:  %s\n", path_image_c, path_image_fpga);
-                    printf("  Salvando diferenca em: %s\n", path_image_difference);
+                    printf("  Salvando diferença em: %s\n", path_image_difference);
 
                     if (comparar_imagens_diferenca(path_image_c, path_image_fpga, path_image_difference) == 0) {
-                        // Mensagem de sucesso já é impressa pela função de comparação
+                        // Mensagem de sucesso é impressa pela função
                     } else {
-                        // Mensagem de erro já é impressa pela função de comparação
-                        printf("Falha ao comparar imagens. Verifique os caminhos e se as imagens existem com as mesmas dimensoes.\n");
+                        // Mensagem de erro é impressa pela função
+                        printf("Falha ao comparar imagens. Verifique os caminhos e se as imagens existem com as mesmas dimensões.\n");
                     }
                 }
+                break; 
+            } 
+            default: // Seu default original
+                break;
+    }
+
+    // Seu loop while original para aplicar filtros
+    while (operacao > 0 && operacao < 6){
+        for (int y = 0; y < height - 1; y++) { // Seus limites de loop originais
+            for (int x = 0; x < width - 1; x++) { // Seus limites de loop originais
+                int temporario = calcularGeratriz(data, y, x, width, height, operacao);
+                if (temporario>255){
+                    temporario=255;
+                }else if (temporario<0){
+                    temporario=0;
+                }
+                output_data[y * width + x] = temporario;
+                
             }
-        } else if (operacao == 7) {
-            printf("Saindo do programa...\n");
-        } else {
-            printf("Opcao invalida. Tente novamente.\n");
         }
-        printf("--------------------------------------------------------------------\n");
+        
+        stbi_write_png(output_filename, width, height, 1, output_data, width);
+        printf("Imagem salva como '%s'\n", output_filename);
 
-    } while (operacao != 7);
-
+        // Seu menu interno original
+        printf("\nDIGITE O FILTRO DESEJADO ");
+        printf("\nFILTROS:\n[1] Roberts(2x2) \n[2] Sobel(3x3) \n[3] Prewitt(3x3) \n[4] Sobel Expandido(5x5) \n[5] Laplaciano(5x5): \n[6] Sair do Programa: ");
+        scanf("%d", &operacao); // Leitura para a próxima iteração ou saída
+    }
 
     // Liberar memória
     stbi_image_free(data);
-    // free(temp_data); // Liberar se for alocado e usado
+    free(temp_data); // Sua liberação original
     free(output_data);
 
-    printf("Programa finalizado.\n");
     return 0;
 }
